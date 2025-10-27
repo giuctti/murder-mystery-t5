@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Murder Mystery Game - Advanced</title>
+  <title>Murder Mystery Game</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen p-6">
   <div class="max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold text-center mb-4">🔍 The Blackwell Manor Mystery</h1>
+    <h1 class="text-3xl font-bold text-center mb-4">🔍 The Blackwell Mystery</h1>
 
     <section class="mb-8 bg-white p-6 rounded shadow">
-      <h2 class="text-2xl font-semibold mb-2">The Story: An Unfortunate Demise</h2>
+      <h2 class="text-2xl font-semibold mb-2">An Unfortunate Sequence of Events</h2>
       <p class="text-gray-700">
-        **Mr. Arthur Blackwell**, a reclusive but wealthy art collector, was found dead in his private study last night at 7:50 PM. He was sitting at his mahogany desk, and a priceless, recently acquired **statue was missing**. Seven people were in the house at the time, all with varying relationships and, potentially, grudges against the victim. Your task is to analyze the complex statements, look for discrepancies, and determine **who the killer is**. The murder took place in a brief, ten-minute window of chaos.
+        Mr. Blackwell, a rich art collector, was found dead in his private study last night at 7:50 PM. Seven people were in the house at the time, all with different relationships with the victim. Your task is to analyze the suspects' statements, look for clues, and find out who the killer is.
       </p>
     </section>
 
@@ -72,82 +72,82 @@
     const suspects = [
       {
         name: 'Alice',
-        job: 'Cook (Resident Chef)',
+        job: 'Cook',
         responses: {
-          q1: 'At that precise moment, I was diligently **preparing the evening meal** in the kitchen. I was quite busy chopping vegetables.',
-          q2: 'Around 7:45, I caught a glimpse of **someone hurrying** down the corridor towards the study. I couldn\'t distinguish their face due to the distance.',
-          q3: 'I was definitely **startled** when the lights were suddenly switched off. Subsequently, a faint but distinct scream was heard from the study\'s direction.',
-          q4: 'I remained in the kitchen, feeling a bit **anxious**. I was waiting for the lights to be turned back on before leaving my post.'
+          q1: 'At that precise moment, I was preparing the evening meal in the kitchen. I was quite busy cutting vegetables.',
+          q2: 'Around 7:45, I saw someone running down the corridor towards the study. I couldn\'t distinguish their face because of the distance.',
+          q3: 'I was shocked when the lights suddenly went off. Then, a faint but distinct scream was heard from the study\'s direction.',
+          q4: 'I stayed in the kitchen, feeling a bit anxious. I was waiting for the lights to be turned back on before leaving.'
         }
       },
       {
         name: 'Bob',
-        job: 'Gardener (Long-time Employee)',
+        job: 'Gardener',
         responses: {
-          q1: 'I had stepped out to the garden. I **used to** check the irrigation system around that time every day, so I was preoccupied outside.',
-          q2: 'No one was visible from my perspective, but I certainly heard a loud, **unmistakable thud** that seemed to originate from inside the mansion.',
-          q3: 'I was just finishing up when the house lights went completely dark. It was then that a **blood-curdling scream** made me drop my tools.',
-          q4: 'Immediately after the incident, I cautiously made my way back into the house, but I **didn\'t manage** to reach the study before Eva.'
+          q1: 'At that time, I had stepped out to the garden. I usually check the watering system around that time every day, so I was busy outside.',
+          q2: 'No one was visible from my perspective, but I certainly heard a loud noise that seemed to come from inside the mansion.',
+          q3: 'I was just finishing up when the house lights went completely dark. It was then that a loud scream made me drop my tools.',
+          q4: 'Immediately after the incident, I made my way back into the house, but Eva reached the study before me.'
         }
       },
       {
         name: 'Clara',
-        job: 'Teacher (Niece and Heir)', // The Killer
+        job: 'Teacher',
         responses: {
-          q1: 'I was in the **main living room**, trying to finish a chapter of a novel. I must admit, I was quite **distracted** by the situation with my uncle.',
-          q2: 'I definitely went outside to the porch to see if Bob was there, which he was. We talked briefly about the **peculiar weather** we were having.',
-          q3: 'The abrupt darkness was rather frightening. I was definitely **scared** by the noise and the subsequent scream; I truly believe it was terrifying.',
-          q4: 'I decided it was safer to go back to my room and lock the door. **I shouldn\'t have been** near the study; it was too risky.'
+          q1: 'I was in the main living room, trying to finish a chapter of a novel. I always read Gina's recommendations.',
+          q2: 'At that time, I remember going outside to see if Bob was there, which he was. We talked about the unusual weather we were having.',
+          q3: 'The sudden darkness was frightening. I was definitely scared by the noise and the following scream; it was terrifying.',
+          q4: 'I decided it was safer to go back to my room and lock the door.'
         }
       },
       {
         name: 'David',
-        job: 'Driver (Personal Chauffeur)',
+        job: 'Driver',
         responses: {
-          q1: 'My focus was solely on **polishing the vintage car** in the garage. I always make sure the vehicle **is kept** in immaculate condition.',
-          q2: 'No, I didn\'t observe anyone. However, I distinctly heard what sounded like an **object being dropped** very loudly from the main house.',
-          q3: 'The garage lights went off, of course, along with the rest of the house. Everything was plunged into **pitch-black darkness**.',
-          q4: 'I waited outside. If **I had gone inside** during the power cut, I might have tripped, so I sensibly chose to wait until the lights were back.'
+          q1: 'My focus was on polishing the vintage car in the garage. I always make sure the vehicle is kept in immaculate condition.',
+          q2: 'No, I didn\'t see anyone there. However, I distinctly heard what sounded like an object being dropped very loudly inside the house.',
+          q3: 'The garage lights went off, of course, along with the rest of the house.',
+          q4: 'I waited outside. If I had gone inside during the power cut, I might have tripped, so I chose to wait until the lights were back.'
         }
       },
       {
         name: 'Eva',
-        job: 'Doctor (Family Friend)',
+        job: 'Doctor',
         responses: {
-          q1: 'I was simply **absorbed in a medical journal** in the main hall. I always take a few minutes for light reading before dinner.',
-          q2: 'Yes, I noticed Alice in the kitchen area. She **was definitely cooking** and seemed quite focused on her task. I didn\'t see anyone else.',
-          q3: 'The abrupt darkness, followed by the sound of a scream that seemed to be **coming from the study**, made my heart pound. I had to investigate.',
-          q4: 'As soon as the lights returned, I rushed to the study. It was me who **discovered Mr. Blackwell\'s body** and called for assistance immediately.'
+          q1: 'I was busy writing a medical journal in the main hall. I always take a few minutes for reading before dinner.',
+          q2: 'Yes, I noticed Alice in the kitchen area. She was definitely cooking and seemed focused on her task. I didn\'t see anyone else.',
+          q3: 'The abrupt darkness, followed by the sound of a scream coming from the study, made my heart pound. I had to investigate.',
+          q4: 'As soon as the lights returned, I rushed to the study. It was me who discovered Mr. Blackwell\'s body and called for assistance immediately.'
         }
       },
       {
         name: 'Frank',
-        job: 'Musician (Mr. Blackwell\'s Protégé)',
+        job: 'Musician',
         responses: {
-          q1: 'I **was practicing a difficult concerto** in the music room. The soundproofing in there is excellent, which is quite useful.',
-          q2: 'I opened the door for a moment and distinctly saw Bob alone in the garden, **fumbling with some tools**. He was not speaking to anyone.',
-          q3: 'The sudden lack of illumination stopped me mid-phrase. The silence was quite unnerving. **I couldn\'t have heard** anything over my music if the power hadn\'t failed.',
-          q4: 'I stayed put in the music room. I figured it **wasn\'t my obligation** to go check what was going on since I was a mere guest.'
+          q1: 'I was practicing a difficult piece in the music room. The soundproofing in there is excellent for playing the electric guitar.',
+          q2: 'I looked through the window for a moment and clearly saw Bob in the garden, working with some tools by himself.',
+          q3: 'The sudden darkness interrupted my practice, but I couldn\'t hear anything because of the soundproofed walls.',
+          q4: 'I stayed alone in the music room. I figured it wasn\'t my obligation to go check what was going on.'
         }
       },
       {
         name: 'Gina',
-        job: 'Librarian (House Staff)',
+        job: 'Librarian',
         responses: {
-          q1: 'I was sorting the new acquisitions in the library. All the rare books **were being cataloged** at that hour.',
-          q2: 'I saw Clara. She **was standing** very close to the study room entrance, looking rather nervous. She then quickly moved towards the living room.',
-          q3: 'After the lights failed, I heard a terrible, high-pitched scream. If I **hadn\'t been standing** so close to the door, I wouldn\'t have heard it.',
-          q4: 'I decided to remain in the library, as the books are quite valuable and **must be protected** at all times.'
+          q1: 'I was organizing the new acquisitions in the library. It's quite a lonely job, but I enjoy it.',
+          q2: 'I saw Clara. She was standing near the study room entrance, but I think she quickly moved towards the living room. I'm not too sure.',
+          q3: 'After the lights went off, I heard a terrible, high-pitched scream.',
+          q4: 'I decided to stay in the library, as the books are extremely valuable and must be protected at all times.'
         }
       }
     ];
 
     // Preguntas avanzadas: Past Continuous, Conditional, Modals, Passive, etc.
     const allQuestions = [
-      'What were you doing at 7:40 PM?', // Past Continuous
-      'What did you observe while you were waiting?', // Past Simple + Past Continuous
-      'What would you have done if the power had failed?', // Third Conditional (used as a tricky question)
-      'What must have been done right after the body was found?' // Modal + Passive Voice
+      'What were you doing at 7:40?', 
+      'Did you see anything at 7:45?', 
+      'What happened at 7:47?', 
+      'What did you do at 7:50?' 
     ];
 
     let currentSuspect = null;
@@ -241,10 +241,10 @@
     function checkTimeline() {
       // Oraciones correctas - La verdad detrás de la mentira de Clara y las coartadas de los demás.
       const expected = [
-        'Clara was in the living room.', 
-        'Clara went to the study room.', 
+        'Clara was in the main living room, reading a book.', 
+        'Clara ran towards the study room.', 
         'Clara turned off the lights and killed Mr. Blackwell.', 
-        'Eva found the body.'
+        'Eva found the body in the study room.'
       ];
 
       // Solo 4 entradas de tiempo (7:40, 7:45, 7:47, 7:50)
@@ -265,7 +265,7 @@
     function checkKillerGuess() {
       const guess = document.getElementById('killer-guess').value;
       const result = document.getElementById('killer-result');
-      result.textContent = guess === 'Clara' ? `✅ Correct! ${guess} is the killer. The theft of the statue was a distraction.` : `❌ No, ${guess} is not the killer.`;
+      result.textContent = guess === 'Clara' ? `✅ Correct! ${guess} is the killer.` : `❌ No, ${guess} is not the killer.`;
     }
 
     function shuffle(arr) {
