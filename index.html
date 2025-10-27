@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Murder Mystery Game - Advanced</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold text-center mb-4">🔍 The Blackwell Manor Mystery</h1>
+
+    <section class="mb-8 bg-white p-6 rounded shadow">
+      <h2 class="text-2xl font-semibold mb-2">The Story: An Unfortunate Demise</h2>
+      <p class="text-gray-700">
+        **Mr. Arthur Blackwell**, a reclusive but wealthy art collector, was found dead in his private study last night at 7:50 PM. He was sitting at his mahogany desk, and a priceless, recently acquired **statue was missing**. Seven people were in the house at the time, all with varying relationships and, potentially, grudges against the victim. Your task is to analyze the complex statements, look for discrepancies, and determine **who the killer is**. The murder took place in a brief, ten-minute window of chaos.
+      </p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-2xl font-semibold mb-4">Suspects</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="suspect-grid"></div>
+    </section>
+
+    <div id="question-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <h3 class="text-xl font-bold mb-4" id="modal-title">Ask a Question</h3>
+        <ul id="modal-word-bank" class="flex gap-2 flex-wrap p-4 bg-gray-100 rounded mb-4 min-h-[60px]"></ul>
+        <button onclick="checkModalQuestion()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Check</button>
+        <p id="modal-result" class="mt-2 font-bold"></p>
+        <button id="next-question-btn" onclick="nextModalQuestion()" class="mt-4 bg-green-600 text-white px-4 py-2 rounded hidden">Next</button>
+        <button onclick="closeModal()" class="mt-4 text-sm text-red-500 underline">Close</button>
+      </div>
+    </div>
+
+    <section class="mb-8">
+      <h2 class="text-2xl font-semibold mb-4">Killer's Timeline</h2>
+      <p class="mb-2 text-gray-600">Write what happened between 7:40 and 7:50:</p>
+      <form id="timeline-form" class="bg-white rounded-lg shadow p-4 space-y-4">
+        <div><label class="block font-semibold">7:40 PM</label><input type="text" class="w-full p-2 border border-gray-300 rounded" placeholder="What happened?" id="time1"></div>
+        <div><label class="block font-semibold">7:45 PM</label><input type="text" class="w-full p-2 border border-gray-300 rounded" placeholder="What happened?" id="time2"></div>
+        <div><label class="block font-semibold">7:47 PM</label><input type="text" class="w-full p-2 border border-gray-300 rounded" placeholder="What happened?" id="time3"></div>
+        <div><label class="block font-semibold">7:50 PM</label><input type="text" class="w-full p-2 border border-gray-300 rounded" placeholder="What happened?" id="time4"></div>
+        <button type="button" onclick="checkTimeline()" class="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Check</button>
+        <p id="timeline-result" class="mt-2 font-bold"></p>
+      </form>
+    </section>
+
+    <section>
+      <h2 class="text-2xl font-semibold mb-4">Who Did It?</h2>
+      <p class="text-gray-600 mb-2">Choose the killer:</p>
+      <select id="killer-guess" class="w-full max-w-xs p-2 border border-gray-300 rounded">
+        <option value="">-- Choose --</option>
+        <option>Alice</option>
+        <option>Bob</option>
+        <option>Clara</option>
+        <option>David</option>
+        <option>Eva</option>
+        <option>Frank</option>
+        <option>Gina</option>
+      </select>
+      <button onclick="checkKillerGuess()" class="mt-4 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">Submit</button>
+      <p id="killer-result" class="mt-2 font-bold"></p>
+    </section>
+  </div>
+
+  <script>
+    // Variable global para almacenar la instancia de Sortable.js
+    let currentSortable = null;
+    
+    const suspects = [
+      {
+        name: 'Alice',
+        job: 'Cook (Resident Chef)',
+        responses: {
+          q1: 'At that precise moment, I was diligently **preparing the evening meal** in the kitchen. I was quite busy chopping vegetables.',
+          q2: 'Around 7:45, I caught a glimpse of **someone hurrying** down the corridor towards the study. I couldn\'t distinguish their face due to the distance.',
+          q3: 'I was definitely **startled** when the lights were suddenly switched off. Subsequently, a faint but distinct scream was heard from the study\'s direction.',
+          q4: 'I remained in the kitchen, feeling a bit **anxious**. I was waiting for the lights to be turned back on before leaving my post.'
+        }
+      },
+      {
+        name: 'Bob',
+        job: 'Gardener (Long-time Employee)',
+        responses: {
+          q1: 'I had stepped out to the garden. I **used to** check the irrigation system around that time every day, so I was preoccupied outside.',
+          q2: 'No one was visible from my perspective, but I certainly heard a loud, **unmistakable thud** that seemed to originate from inside the mansion.',
+          q3: 'I was just finishing up when the house lights went completely dark. It was then that a **blood-curdling scream** made me drop my tools.',
+          q4: 'Immediately after the incident, I cautiously made my way back into the house, but I **didn\'t manage** to reach the study before Eva.'
+        }
+      },
+      {
+        name: 'Clara',
+        job: 'Teacher (Niece and Heir)', // The Killer
+        responses: {
+          q1: 'I was in the **main living room**, trying to finish a chapter of a novel. I must admit, I was quite **distracted** by the situation with my uncle.',
+          q2: 'I definitely went outside to the porch to see if Bob was there, which he was. We talked briefly about the **peculiar weather** we were having.',
+          q3: 'The abrupt darkness was rather frightening. I was definitely **scared** by the noise and the subsequent scream; I truly believe it was terrifying.',
+          q4: 'I decided it was safer to go back to my room and lock the door. **I shouldn\'t have been** near the study; it was too risky.'
+        }
+      },
+      {
+        name: 'David',
+        job: 'Driver (Personal Chauffeur)',
+        responses: {
+          q1: 'My focus was solely on **polishing the vintage car** in the garage. I always make sure the vehicle **is kept** in immaculate condition.',
+          q2: 'No, I didn\'t observe anyone. However, I distinctly heard what sounded like an **object being dropped** very loudly from the main house.',
+          q3: 'The garage lights went off, of course, along with the rest of the house. Everything was plunged into **pitch-black darkness**.',
+          q4: 'I waited outside. If **I had gone inside** during the power cut, I might have tripped, so I sensibly chose to wait until the lights were back.'
+        }
+      },
+      {
+        name: 'Eva',
+        job: 'Doctor (Family Friend)',
+        responses: {
+          q1: 'I was simply **absorbed in a medical journal** in the main hall. I always take a few minutes for light reading before dinner.',
+          q2: 'Yes, I noticed Alice in the kitchen area. She **was definitely cooking** and seemed quite focused on her task. I didn\'t see anyone else.',
+          q3: 'The abrupt darkness, followed by the sound of a scream that seemed to be **coming from the study**, made my heart pound. I had to investigate.',
+          q4: 'As soon as the lights returned, I rushed to the study. It was me who **discovered Mr. Blackwell\'s body** and called for assistance immediately.'
+        }
+      },
+      {
+        name: 'Frank',
+        job: 'Musician (Mr. Blackwell\'s Protégé)',
+        responses: {
+          q1: 'I **was practicing a difficult concerto** in the music room. The soundproofing in there is excellent, which is quite useful.',
+          q2: 'I opened the door for a moment and distinctly saw Bob alone in the garden, **fumbling with some tools**. He was not speaking to anyone.',
+          q3: 'The sudden lack of illumination stopped me mid-phrase. The silence was quite unnerving. **I couldn\'t have heard** anything over my music if the power hadn\'t failed.',
+          q4: 'I stayed put in the music room. I figured it **wasn\'t my obligation** to go check what was going on since I was a mere guest.'
+        }
+      },
+      {
+        name: 'Gina',
+        job: 'Librarian (House Staff)',
+        responses: {
+          q1: 'I was sorting the new acquisitions in the library. All the rare books **were being cataloged** at that hour.',
+          q2: 'I saw Clara. She **was standing** very close to the study room entrance, looking rather nervous. She then quickly moved towards the living room.',
+          q3: 'After the lights failed, I heard a terrible, high-pitched scream. If I **hadn\'t been standing** so close to the door, I wouldn\'t have heard it.',
+          q4: 'I decided to remain in the library, as the books are quite valuable and **must be protected** at all times.'
+        }
+      }
+    ];
+
+    // Preguntas avanzadas: Past Continuous, Conditional, Modals, Passive, etc.
+    const allQuestions = [
+      'What were you doing at 7:40 PM?', // Past Continuous
+      'What did you observe while you were waiting?', // Past Simple + Past Continuous
+      'What would you have done if the power had failed?', // Third Conditional (used as a tricky question)
+      'What must have been done right after the body was found?' // Modal + Passive Voice
+    ];
+
+    let currentSuspect = null;
+    let currentQuestionIndex = 0;
+
+    const suspectGrid = document.getElementById('suspect-grid');
+    suspects.forEach((s) => {
+      const div = document.createElement('div');
+      div.className = 'bg-white p-4 rounded shadow text-center cursor-pointer hover:bg-blue-100';
+      div.onclick = () => openModal(s);
+      div.innerHTML = `<h3 class='font-bold text-lg'>${s.name}</h3><p class='text-sm text-gray-600'>${s.job}</p>`;
+      suspectGrid.appendChild(div);
+    });
+
+    function openModal(suspect) {
+      currentSuspect = suspect;
+      currentQuestionIndex = 0;
+      document.getElementById('modal-result').textContent = '';
+      loadModalQuestion();
+      document.getElementById('question-modal').classList.remove('hidden');
+    }
+
+    function loadModalQuestion() {
+      document.getElementById('modal-title').textContent = `Ask ${currentSuspect.name}`;
+      const bank = document.getElementById('modal-word-bank');
+      bank.innerHTML = '';
+      document.getElementById('next-question-btn').classList.add('hidden');
+
+      // 1. DESTRUYE la instancia anterior de Sortable si existe.
+      if (currentSortable) {
+          currentSortable.destroy();
+          currentSortable = null; 
+      }
+
+      // Separamos el signo de interrogación de la última palabra para que sea un bloque individual
+      const questionWithoutPunctuation = allQuestions[currentQuestionIndex].slice(0, -1);
+      let selectedWords = questionWithoutPunctuation.split(' ');
+      selectedWords.push('?'); // Agregamos el signo de interrogación como una palabra/bloque más
+
+      shuffle(selectedWords);
+      selectedWords.forEach(word => {
+        const li = document.createElement('li');
+        li.textContent = word;
+        li.className = 'px-3 py-2 bg-blue-100 rounded cursor-move';
+        bank.appendChild(li);
+      });
+      
+      // 2. CREA la nueva instancia de Sortable y guárdala.
+      currentSortable = Sortable.create(bank, { animation: 150 });
+    }
+
+    function checkModalQuestion() {
+      const words = [...document.getElementById('modal-word-bank').children].map(li => li.textContent);
+      
+      // Unimos las palabras y luego reemplazamos " ?" por "?" para corregir el formato.
+      let userQuestion = words.join(' ');
+      userQuestion = userQuestion.replace(' ?', '?').trim(); 
+
+      const expected = allQuestions[currentQuestionIndex].trim();
+      const result = document.getElementById('modal-result');
+
+      if (userQuestion === expected) { 
+        const answer = currentSuspect.responses[`q${currentQuestionIndex + 1}`];
+        result.textContent = `${currentSuspect.name} said: \"${answer}\"`;
+        document.getElementById('next-question-btn').classList.remove('hidden');
+      } else {
+        result.textContent = '❌ Try again. Check your grammar and word order!';
+      }
+    }
+
+
+    function nextModalQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex >= allQuestions.length) {
+        closeModal();
+      } else {
+        document.getElementById('modal-result').textContent = '';
+        loadModalQuestion();
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('question-modal').classList.add('hidden');
+      // Destruye la instancia al cerrar el modal también
+      if (currentSortable) {
+          currentSortable.destroy();
+          currentSortable = null;
+      }
+    }
+
+    function checkTimeline() {
+      // Oraciones correctas - La verdad detrás de la mentira de Clara y las coartadas de los demás.
+      const expected = [
+        'Clara was in the living room.', 
+        'Clara went to the study room.', 
+        'Clara turned off the lights and killed Mr. Blackwell.', 
+        'Eva found the body.'
+      ];
+
+      // Solo 4 entradas de tiempo (7:40, 7:45, 7:47, 7:50)
+      const userAnswers = [
+        document.getElementById('time1').value.trim(),
+        document.getElementById('time2').value.trim(),
+        document.getElementById('time3').value.trim(),
+        document.getElementById('time4').value.trim()
+      ];
+
+      const result = document.getElementById('timeline-result');
+      // Comprueba que la longitud de las respuestas sea la misma y que todas sean correctas
+      const isCorrect = userAnswers.length === expected.length && userAnswers.every((ans, i) => ans.toLowerCase() === expected[i].toLowerCase());
+
+      result.textContent = isCorrect ? '✅ Correct timeline!' : '❌ Try again.';
+    }
+
+    function checkKillerGuess() {
+      const guess = document.getElementById('killer-guess').value;
+      const result = document.getElementById('killer-result');
+      result.textContent = guess === 'Clara' ? `✅ Correct! ${guess} is the killer. The theft of the statue was a distraction.` : `❌ No, ${guess} is not the killer.`;
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+  </script>
+</body>
+</html>
